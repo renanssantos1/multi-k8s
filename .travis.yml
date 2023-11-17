@@ -11,7 +11,6 @@ before_install:
   - curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-454.0.0-linux-x86_64.tar.gz
   - tar -xf google-cloud-cli-454.0.0-linux-x86_64.tar.gz
   - ./google-cloud-sdk/install.sh
-  - source $HOME/google-cloud-sdk/path.bash.inc
   - gcloud components update kubectl
   - gcloud auth activate-service-account --key-file service-account.json
   - gcloud config set project multi-k8s-405113
