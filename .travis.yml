@@ -4,15 +4,31 @@ services:
 env:
   global: 
     - SHA=$(git rev-parse HEAD)
-    - CLOUDSDK_PYTHON=3.8
     - CLOUDSDK_CORE_DISABLE_PROMPTS=1
+    - CLOUDSDK_PYTHON=3.8
 before_install:
   - if [ ! -d $HOME/google-cloud-sdk/bin ]; then
     rm -rf $HOME/google-cloud-sdk;
     curl https://dl.google.com/dl/cloudsdk/channels/rapid/install_google_cloud_sdk.bash| bash > /dev/null;
   fi
   - source $HOME/google-cloud-sdk/path.bash.inc
+  - openssl aes-256-cbc -K $encrypted_9f3b5599b056_key -iv $encrypted_9f3b5599b056_iv -in service-account.json.enc -out service-account.json -d
+  - gcloud components update kubectl
+  - gcloud auth activate-service-account --key-file service-account.json
+  - gcloud config set project multi-k8s-405113
+  - gcloud config set compute/zone us-central1-c
+  - gcloud container clusters get-credentials multi-cluster
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USERNAME" --password-stdin
+  - docker build -t renansantos01/react-test -f ./client/Dockerfile.dev ./client
 
+script:
+  - docker run -e CI=true renansantos01/react-test npm test
+
+deploy:
+  provider: script
+  script: bash ./deploy.sh
+  on:
+    branch: master
 
 
     
